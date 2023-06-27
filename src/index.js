@@ -1,10 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
+import APP from "./APP";
 
 import "lib-flexible";
 
-import "./assets/reset.min.css";
 import "./index.less";
+
+/* 组件库导入 */
+import { ConfigProvider } from "antd-mobile";
+import zhCN from "antd-mobile/es/locales/en-US";
 
 /* 处理最大宽度 */
 (function () {
@@ -19,10 +23,13 @@ import "./index.less";
   };
   handleMax();
 })();
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <div>知乎日报</div>
+    <ConfigProvider locale={zhCN}>
+      <APP />
+    </ConfigProvider>
   </React.StrictMode>
 );
 

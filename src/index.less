@@ -1,3 +1,4 @@
+@import  "./assets/reset.min.css";
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -12,9 +13,29 @@ code {
     monospace;
 }
 
-@Bg:lightblue;
+// @Bg:lightblue;
 
-html,body{
-  height:100%;
-  background-color: @Bg;
+// html,body{
+//   height:100%;
+//   background-color: @Bg;
+// }
+
+html,
+body {
+    height: 100%;
+    background: #EEE;
+}
+
+#root {
+    min-height: 100%;
+    background: #FFF;
+    margin: 0 auto;
+}
+
+.adm-dot-loading {
+  font-size: 60px;
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
 }
