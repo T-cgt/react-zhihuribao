@@ -30,13 +30,13 @@ import store from "./store/index";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <ConfigProvider locale={zhCN}>
-      <Provider store={store}>
-        <APP />
-      </Provider>
-    </ConfigProvider>
-  </React.StrictMode>
+  // <React.StrictMode> //会导致子组件中的useeffect的钩子调用两次
+  <ConfigProvider locale={zhCN}>
+    <Provider store={store}>
+      <APP />
+    </Provider>
+  </ConfigProvider>
+  // </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
