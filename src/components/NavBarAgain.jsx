@@ -12,6 +12,6 @@ export default function NavBarAgain(props) {
 NavBarAgain.defaultProps = {
   title: "个人中心",
 };
-NaBarAgain.propTypes = {
+NavBarAgain.propTypes = {
   title: PropTypes.string,
 };
