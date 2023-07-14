@@ -52,7 +52,7 @@ export default function Home() {
       if (isIntersecting) {
         try {
           let time = newsList.slice(-1)[0]["date"]; //获取数据中最之前的日期
-          let result = await api.queryNewsLatest(time);
+          let result = await api.queryNewsBefore(time);
           newsList.push(result);
           setNewsList([...newsList]);
         } catch (_) {}
@@ -64,7 +64,7 @@ export default function Home() {
 
     //在组件销毁释放时候，手动销毁监听器
     return () => {
-      console.log("----打印：", loadMore.current); //为null
+      // console.log("----打印：", loadMore.current); //为null
       ob.unobserve(loadMoreDom);
       ob = null;
     };
