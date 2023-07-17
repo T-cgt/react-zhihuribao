@@ -7,19 +7,25 @@ export default function ButtonAgain(props) {
   let { children, onClick: handle } = options;
   //避免改动传进来的属性---直接删除
   delete options.children;
-  delete options.onClick;
 
   /* 状态 */
   let [loading, setLoading] = useState(false);
   const clickHandle = async () => {
     setLoading(true);
-    handle && (await handle());
+    try {
+      await handle();
+    } catch (_) {}
     setLoading(false);
   };
 
+  //考虑没有传入onClick参数
+  if (handle) {
+    options.onClick = clickHandle;
+  }
+
   return (
     <div>
-      <Button {...options} loading={loading} onClick={clickHandle}>
+      <Button {...options} loading={loading}>
         {children}
       </Button>
     </div>
