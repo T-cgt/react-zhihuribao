@@ -49,7 +49,7 @@ const Element = function (props) {
         );
         return;
       }
-      store.dispatch(infoAction);
+      store.dispatch(infoAction); //infoAction是一个派发的对象（数据和type类型）
       setRandom(+new Date());
     })();
   });
