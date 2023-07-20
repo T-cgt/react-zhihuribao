@@ -32,7 +32,7 @@ const Element = function (props) {
     (async () => {
       //如果redux里面的info没有，且眺转页面是符合这几个的
       let infoAction = await action.base.queryUserInfoAsync(); //这里只是单纯调用，没有派发
-      info = infoAction.info;
+      let info = infoAction.info;
       if (!info) {
         //如果获取接口还是获取不到，说明没有登录
         Toast.show({
