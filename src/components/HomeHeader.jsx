@@ -1,9 +1,13 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import time from "../assets/images/timg.jpg";
 import "./HomeHead.less";
-export default function HomeHeader(props) {
-  let { today } = props;
-  //计算属性
+import { connect } from "react-redux";
+import action from "../store/action";
+import { useNavigate } from "react-router-dom";
+
+const HomeHead = function HomeHeader(props) {
+  let { today, info, queryUserInfoAsync } = props;
+  //计算属性--useMemo
   let times = useMemo(() => {
     let [, month, day] = today.match(/^\d{4}(\d{2})(\d{2})$/),
       area = [
@@ -26,6 +30,13 @@ export default function HomeHeader(props) {
       day,
     };
   }, [today]);
+  const navigate = useNavigate();
+  //第一次渲染完，如果info没有信息，尝试派发一次，有就显示头像，没有就算了
+  useEffect(() => {
+    if (!info) {
+      queryUserInfoAsync();
+    }
+  }, []);
   return (
     <header className="home-head-box">
       <div className="info">
@@ -35,9 +46,16 @@ export default function HomeHeader(props) {
         </div>
         <h2>知乎日报</h2>
       </div>
-      <div className="picture">
-        <img src={time} alt="" />
+      <div
+        className="picture"
+        onClick={() => {
+          navigate("/personal");
+        }}
+      >
+        <img src={info ? info.pic : time} alt="" />
       </div>
     </header>
   );
-}
+};
+
+export default connect((state) => state.base, action.base)(HomeHead);
