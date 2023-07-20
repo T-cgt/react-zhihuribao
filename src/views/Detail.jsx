@@ -1,4 +1,4 @@
-import { Badge } from "antd-mobile";
+import { Badge, Toast } from "antd-mobile";
 import {
   LeftOutline,
   MessageOutline,
@@ -6,17 +6,15 @@ import {
   StarOutline,
   LinkOutline,
 } from "antd-mobile-icons";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import "./Detail.less";
 import SkeletonAgain from "../components/SkeletonAgain";
 import api from "../api";
 import { flushSync } from "react-dom";
-
-export default function Detail(props) {
-  const {
-    navigate,
-    params: { id },
-  } = props;
+import { connect } from "react-redux";
+import action from "../store/action/index";
+const Detail = function Detail(props) {
+  const { navigate, params } = props;
 
   //初始数据
   let [info, setInfo] = useState(null),
@@ -54,7 +52,7 @@ export default function Detail(props) {
   useEffect(() => {
     (async () => {
       try {
-        let result = await api.queryNewsInfo(id);
+        let result = await api.queryNewsInfo(params.id);
 
         //因为setInfo数据跟新视图，react中用的是异步机制
         //而处理图片需要获取dom，所以会导致页面还没更新就已经执行了handleImage函数了
@@ -85,11 +83,101 @@ export default function Detail(props) {
   useEffect(() => {
     (async () => {
       try {
-        let result = await api.queryNewsInfo(id);
+        let result = await api.queryNewsInfo(params.id);
         setInfo(result);
       } catch (_) {}
     })();
   }, []);
+
+  //==============下边是关于登录和收藏的逻辑
+
+  let {
+    base: { info: userInfo },
+    queryUserInfoAsync,
+    location,
+    store: { list: storeList },
+    queryStoreListAsync,
+    removeStoreListById,
+  } = props;
+
+  useEffect(() => {
+    (async () => {
+      //第一次渲染完，如果userInfo没存在,需要派发查询时候登录
+      if (!userInfo) {
+        let { info } = await queryUserInfoAsync();
+        userInfo = info;
+      }
+
+      //如果已经登录 && 且没有收藏信息
+      if (userInfo && !storeList) {
+        queryStoreListAsync();
+      }
+    })();
+  }, []);
+
+  //计算属性，用于文章是否收藏
+  const isStore = useMemo(() => {
+    if (!storeList) return false;
+    return storeList.some((item) => {
+      return +item.news.id === +params.id;
+    });
+  }, [storeList, params]);
+
+  //点击收藏按钮
+  async function handleStore() {
+    if (!userInfo) {
+      //未登录
+      Toast.show({
+        icon: "fail",
+        content: "请先登录",
+      });
+
+      navigate(`/login?to=${location.pathname}`, { replace: true });
+      return;
+    }
+
+    //已经登录
+    if (isStore) {
+      //移除收藏
+      let item = storeList.find((item) => {
+        return +item.news.id === +params.id;
+      });
+      if (!item) return; //这个可以不要，毕竟已经有收藏的了，肯定找得到
+      let { code } = await api.storeRemove(item.id);
+      if (+code !== 0) {
+        Toast.show({
+          icon: "success",
+          content: "操作失败",
+        });
+        return;
+      }
+      Toast.show({
+        icon: "success",
+        content: "操作成功",
+      });
+
+      removeStoreListById(item.id); //告诉redux中也把这一项移除掉
+      return;
+    }
+
+    //未收藏---点击要收藏
+    try {
+      let { code } = await api.store(params.id);
+      if (+code !== 0) {
+        Toast.show({
+          icon: "fail",
+          content: "收藏失败",
+        });
+        return;
+      }
+      Toast.show({
+        icon: "success",
+        content: "收藏成功",
+      });
+      queryStoreListAsync(); //同步最新的收藏列表到redux容器中
+    } catch (_) {}
+  }
+
   return (
     <div className="detail-box">
       {/* 新闻内容 */}
@@ -119,7 +207,7 @@ export default function Detail(props) {
           <Badge content="128">
             <LinkOutline />
           </Badge>
-          <span className="stored">
+          <span className={isStore ? "stored" : ""} onClick={handleStore}>
             <StarOutline />
           </span>
           <span>
@@ -129,4 +217,8 @@ export default function Detail(props) {
       </div>
     </div>
   );
-}
+};
+export default connect((state) => ({ base: state.base, store: state.store }), {
+  ...action.base,
+  ...action.store,
+})(Detail);
