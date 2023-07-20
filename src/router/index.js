@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import {
   Routes,
   Route,
@@ -7,13 +7,52 @@ import {
   useParams,
   useSearchParams,
 } from "react-router-dom";
-import { Mask, DotLoading } from "antd-mobile";
+import { Mask, DotLoading, Toast } from "antd-mobile";
 
+import store from "../store/index";
+import action from "../store/action/index";
 import routes from "./router";
+
+const isCheckLogin = (path) => {
+  let {
+      base: { info },
+    } = store.getState(),
+    checkList = ["/personal", "/store", "/update"];
+  return !info && checkList.includes(path);
+};
 
 /* 统一路由配置 */
 const Element = function (props) {
-  let { component: Component, meta } = props;
+  let { component: Component, meta, path } = props;
+  let isShow = !isCheckLogin(path);
+  let [_, setRandom] = useState(0);
+  //登录动态校验
+  useEffect(() => {
+    if (isShow) return;
+    (async () => {
+      //如果redux里面的info没有，且眺转页面是符合这几个的
+      let infoAction = await action.base.queryUserInfoAsync(); //这里只是单纯调用，没有派发
+      info = infoAction.info;
+      if (!info) {
+        //如果获取接口还是获取不到，说明没有登录
+        Toast.show({
+          icon: "fail",
+          content: "请先登录",
+        });
+        // 跳转到登录页
+        navigate(
+          {
+            pathname: "/login",
+            search: `?to=${path}`,
+          },
+          { replace: true }
+        );
+        return;
+      }
+      store.dispatch(infoAction);
+      setRandom(+new Date());
+    })();
+  });
 
   //修改页面title
   let { title } = meta || "知乎日报-webapp";
@@ -26,12 +65,20 @@ const Element = function (props) {
     [usp] = useSearchParams();
 
   return (
-    <Component
-      navigate={navigate}
-      location={location}
-      params={params}
-      usp={usp}
-    />
+    <>
+      {isShow ? (
+        <Component
+          navigate={navigate}
+          location={location}
+          params={params}
+          usp={usp}
+        />
+      ) : (
+        <Mask visible={true}>
+          <DotLoading color="white" />
+        </Mask>
+      )}
+    </>
   );
 };
 
