@@ -83,8 +83,8 @@ const Detail = function Detail(props) {
   useEffect(() => {
     (async () => {
       try {
-        let result = await api.queryNewsInfo(params.id);
-        setInfo(result);
+        let result = await api.queryStoryExtra(params.id);
+        setExtra(result);
       } catch (_) {}
     })();
   }, []);
@@ -201,10 +201,10 @@ const Detail = function Detail(props) {
           <LeftOutline />
         </div>
         <div className="icons">
-          <Badge content="128">
+          <Badge content={extra ? extra.comments : 0}>
             <MessageOutline />
           </Badge>
-          <Badge content="128">
+          <Badge content={extra ? extra.popularity : 0}>
             <LinkOutline />
           </Badge>
           <span className={isStore ? "stored" : ""} onClick={handleStore}>
