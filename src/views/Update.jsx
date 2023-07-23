@@ -66,6 +66,20 @@ const Update = function Update(props) {
           content: "上传失败",
         });
         //这里最好优化一下，返回一个null对象，并且吧本地的照片情况
+        /*
+        // 伪代码示例
+            handleUploadFail = () => {
+              // 清除本地照片，比如重置上传组件的状态
+              this.imageUploaderRef.reset();
+            }
+          render() {
+            return (
+              <div>
+                <ImageUploader ref={(ref) => { this.imageUploaderRef = ref; }} />
+              </div>
+            );
+          } 
+         */
         return;
       }
       picture = pic;
