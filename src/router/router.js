@@ -1,11 +1,17 @@
 import { lazy } from "react";
 import Home from "../views/Home";
+import { withKeepAlive } from "keepalive-react-component";
 
+//使用keepalive-react-component插件实现组件缓存
+//用KeepAliveProvider和withKeepAlive KeepAliveProvider---提供缓存条件，withKeepAlive---指定缓存的组件
+//cacheId：指缓存的id，scroll，回到缓存组件的时候，还是在之前的滚动位置
+//懒加载组件可以--component: withKeepAlive(lazy(() => import("../views/Personal")),{cacheId:'home',scroll:true}) ,
+//包裹的组件的父组件不能设置overflow，不然scroll属性不生效或者错乱
 const routes = [
   {
     path: "/",
     name: "home",
-    component: Home,
+    component: withKeepAlive(Home, { cacheId: "home", scroll: true }),
     meta: {
       title: "知乎日报-webApp",
     },
