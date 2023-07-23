@@ -61,7 +61,7 @@ const Personal = function Personal(props) {
       <div className="baseInfo">
         <Link to="/update">
           <img className="pic" src={info.pic} alt="" />
-          <p className="name">珠峰培训</p>
+          <p className="name">{info.name}</p>
         </Link>
       </div>
       <div>
